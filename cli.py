@@ -35,6 +35,11 @@ def main():
         default=5,
         help="Number of runs (embouchure mode only)"
     )
+    parser.add_argument(
+        "--no-plots",
+        action="store_true",
+        help="Disable plots (single mode only)"
+    )
 
     args = parser.parse_args()
 
@@ -52,6 +57,7 @@ def main():
             duration,
             cfg.audio.sample_rate
         )
+        session.run(plot=not args.no_plots)
 
     else:
         duration = args.duration if args.duration is not None else cfg.audio.duration

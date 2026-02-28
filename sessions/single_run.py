@@ -14,7 +14,7 @@ class SingleRunSession:
         self.duration = duration
         self.sample_rate = sample_rate
 
-    def run(self, countdown_seconds=3):
+    def run(self, countdown_seconds=3, plot=True):
 
         fs = Filesystem()
 
@@ -41,8 +41,9 @@ class SingleRunSession:
 
         print(f"Stable tone duration: {stats['stable_duration']:.2f} sec")
 
-        plt = Plotter(audio, stats, fs)
-        plt.run()
+        if plot:
+            plt = Plotter(audio, stats, fs)
+            plt.run()
         fs.save_stats(stats)
         print(f"\nSaved to: {fs.path}")
 

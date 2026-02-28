@@ -31,7 +31,7 @@ class EmbouchureSession:
                 self.duration,
                 self.recorder.sr
             )
-            stats = session.run(countdown_seconds=next_countdown)
+            stats = session.run(countdown_seconds=next_countdown, plot=False)
 
             results.append(stats)
 
