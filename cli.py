@@ -16,6 +16,12 @@ def main():
         choices=["single", "embouchure"],
         default="single"
     )
+    parser.add_argument(
+        "--duration",
+        type=int,
+        default=None,
+        help="Recording duration in seconds (single mode only)"
+    )
 
     args = parser.parse_args()
 
@@ -26,10 +32,11 @@ def main():
     analyzer = Analyzer(cfg)
 
     if args.mode == "single":
+        duration = args.duration if args.duration is not None else cfg.audio.duration
         session = SingleRunSession(
             recorder,
             analyzer,
-            cfg.audio.duration,
+            duration,
             cfg.audio.sample_rate
         )
 
