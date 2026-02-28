@@ -1,6 +1,6 @@
 # Architektura
 
-![](__readme__/logo.png)A
+![](__readme__/logo.png)
 
 
 
