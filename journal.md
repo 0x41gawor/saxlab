@@ -163,4 +163,25 @@ Warunek jakościowy:
 - 8–10 sekund stabilnego tonu z ustnika
 - 5 sekund czystej B bez pisku (10 powtórzeń)
 
- 
+ # 26-02-28 `saxlab.py`
+
+Napisałem sobie skrypt, do benchmarkowania moich prób.
+
+Skrypt nagrywa mikorofon 10 sekund i potem daje statystyki.
+
+```sh
+SAXLAB RESULTS
+
+Mean frequency: 594.05 Hz
+Std frequency: 8.59 Hz
+Pitch stability: 24.41 cents
+
+Mean dB (RMS): -46.83
+Std dB (RMS): 3.03
+
+Stable tone duration: 8.52 sec
+```
+
+Typowa **częstotliwość** usnitka safonu to ~587Hz
+
+![image-20260228142902023](C:\Users\41gaw\AppData\Roaming\Typora\typora-user-images\image-20260228142902023.png)
