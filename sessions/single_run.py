@@ -14,11 +14,11 @@ class SingleRunSession:
         self.duration = duration
         self.sample_rate = sample_rate
 
-    def run(self):
+    def run(self, countdown_seconds=3):
 
         fs = Filesystem()
 
-        countdown()
+        countdown(countdown_seconds)
 
         audio = self.recorder.record(self.duration)
 
@@ -50,8 +50,14 @@ class SingleRunSession:
 
 
 def countdown(seconds=3):
+        if seconds <= 0:
+            return
         print("\nPrepare...")
-        for i in range(seconds, 0, -1):
+        whole_seconds = int(seconds)
+        for i in range(whole_seconds, 0, -1):
             print(f"{i}...")
             time.sleep(1)
+        remainder = seconds - whole_seconds
+        if remainder > 0:
+            time.sleep(remainder)
         print("GO!\n")
