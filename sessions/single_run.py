@@ -1,4 +1,5 @@
 import time
+import threading
 
 from filesystem.filesystem import Filesystem
 
@@ -13,8 +14,9 @@ class SingleRunSession:
         self.analyzer = analyzer
         self.duration = duration
         self.sample_rate = sample_rate
+        self.plot_thread = None
 
-    def run(self):
+    def run(self, plot_async=False):
 
         fs = Filesystem()
 
@@ -41,8 +43,16 @@ class SingleRunSession:
 
         print(f"Stable tone duration: {stats['stable_duration']:.2f} sec")
 
-        plt = Plotter(audio, stats,fs)
-        plt.run()
+        plt = Plotter(audio, stats, fs)
+        if plot_async:
+            self.plot_thread = threading.Thread(
+                target=plt.run,
+                name="plotter",
+                daemon=True
+            )
+            self.plot_thread.start()
+        else:
+            plt.run()
         fs.save_stats(stats)
         print(f"\nSaved to: {fs.path}")
 

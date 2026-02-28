@@ -18,6 +18,7 @@ class EmbouchureSession:
     def run(self):
 
         results = []
+        plot_threads = []
 
         for i in range(self.repetitions):
 
@@ -29,7 +30,9 @@ class EmbouchureSession:
                 self.duration,
                 self.recorder.sr
             )
-            stats = session.run()
+            stats = session.run(plot_async=True)
+            if session.plot_thread is not None:
+                plot_threads.append(session.plot_thread)
 
             results.append(stats)
 
@@ -38,6 +41,9 @@ class EmbouchureSession:
 
         summary = self._summarize(results)
         self._print_summary(summary)
+
+        for thread in plot_threads:
+            thread.join()
 
         return {
             "runs": results,
