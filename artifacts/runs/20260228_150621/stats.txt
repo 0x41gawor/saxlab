@@ -1,0 +1,10 @@
+SAXLAB RESULTS
+
+Mean frequency: 458.10 Hz
+Std frequency: 5.82 Hz
+Pitch stability: 21.42 cents
+
+Mean dB (RMS): -37.94
+Std dB (RMS): 2.44
+
+Stable tone duration: 7.85 sec

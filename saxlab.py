@@ -118,11 +118,13 @@ def analyze(audio):
     db_voiced = db[gate_mask]
 
     # pitch stats
+    from util import trim_attack
+    f0_trim = trim_attack(f0)
 
-    mean_freq = np.nanmean(f0)
-    std_freq = np.nanstd(f0)
+    mean_freq = np.nanmean(f0_trim)
+    std_freq = np.nanstd(f0_trim)
 
-    cents = pitch_to_cents(f0)
+    cents = pitch_to_cents(f0_trim)
 
     std_cents = np.nanstd(cents)
 
