@@ -18,26 +18,20 @@ class EmbouchureSession:
     def run(self):
 
         results = []
-        next_countdown = 3
 
         for i in range(self.repetitions):
 
             print(f"\nRun {i+1}/{self.repetitions}")
 
-            run_start = time.monotonic()
             session = SingleRunSession(
                 self.recorder,
                 self.analyzer,
                 self.duration,
                 self.recorder.sr
             )
-            stats = session.run(countdown_seconds=next_countdown, plot=False)
+            stats = session.run(countdown_seconds=self.interval, plot=False)
 
             results.append(stats)
-
-            elapsed = time.monotonic() - run_start
-            remaining = self.interval - elapsed
-            next_countdown = max(0, remaining)
 
         summary = self._summarize(results)
         self._print_summary(summary)

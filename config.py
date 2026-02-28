@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class AudioConfig:
     sample_rate: int = 44100
-    duration: int = 5
+    duration: int = 10
 
 
 @dataclass
