@@ -9,6 +9,8 @@ import librosa.display
 import matplotlib.pyplot as plt
 import soundfile as sf
 
+from util import detect_active_region
+
 
 # ===============================
 # CONFIG
@@ -21,7 +23,7 @@ FMIN = 200
 FMAX = 1200
 
 WINDOW_MS = 50
-GATE_DB = 25
+ACTIVE_DB_THRESHOLD = 20
 
 STABLE_FREQ_THRESHOLD = 20  # Hz
 
@@ -78,15 +80,6 @@ def compute_rms_db(audio, sr, window_ms):
     return np.array(rms_values)
 
 
-def apply_gate(db_values, gate_db):
-
-    max_db = np.max(db_values)
-
-    mask = db_values > (max_db - gate_db)
-
-    return mask
-
-
 def pitch_to_cents(f0):
 
     mean_freq = np.nanmean(f0)
@@ -109,33 +102,34 @@ def analyze(audio):
         sr=SR
     )
 
-    # RMS dB
-
     db = compute_rms_db(audio, SR, WINDOW_MS)
 
-    gate_mask = apply_gate(db, GATE_DB)
+    # detect active tone region
+    start_w, end_w = detect_active_region(db, ACTIVE_DB_THRESHOLD)
 
-    db_voiced = db[gate_mask]
+    # convert window index to frame index
+    frames_per_window = len(f0) / len(db)
+
+    start_f = int(start_w * frames_per_window)
+    end_f = int(end_w * frames_per_window)
+
+    f0_active = f0[start_f:end_f]
+    db_active = db[start_w:end_w]
 
     # pitch stats
-    from util import trim_attack
-    f0_trim = trim_attack(f0)
+    mean_freq = np.nanmean(f0_active)
+    std_freq = np.nanstd(f0_active)
 
-    mean_freq = np.nanmean(f0_trim)
-    std_freq = np.nanstd(f0_trim)
-
-    cents = pitch_to_cents(f0_trim)
+    cents = pitch_to_cents(f0_active)
 
     std_cents = np.nanstd(cents)
 
     # dB stats
-
-    mean_db = np.mean(db_voiced)
-    std_db = np.std(db_voiced)
+    mean_db = np.mean(db_active)
+    std_db = np.std(db_active)
 
     # stable tone duration
-
-    stable_mask = np.abs(f0 - mean_freq) < STABLE_FREQ_THRESHOLD
+    stable_mask = np.abs(f0_active - mean_freq) < STABLE_FREQ_THRESHOLD
 
     frame_duration = len(audio)/SR / len(f0)
 
@@ -150,7 +144,11 @@ def analyze(audio):
         "std_cents": std_cents,
         "mean_db": mean_db,
         "std_db": std_db,
-        "stable_duration": stable_duration
+        "stable_duration": stable_duration,
+        "start_w": start_w,
+        "end_w": end_w,
+        "start_f": start_f,
+        "end_f": end_f
     }
 
 
@@ -158,13 +156,16 @@ def analyze(audio):
 # PLOTS
 # ===============================
 
-def plot_pitch(f0, path):
+def plot_pitch(f0, start_f, end_f, path):
 
     plt.figure(figsize=(10,4))
 
     plt.title("Pitch (Hz)")
 
     plt.plot(f0)
+
+    plt.axvline(start_f, color="red")
+    plt.axvline(end_f, color="red")
 
     plt.ylabel("Hz")
     plt.xlabel("frame")
@@ -183,6 +184,8 @@ def plot_cents(cents, path):
     plt.plot(cents)
 
     plt.axhline(0)
+    plt.axhline(20, linestyle=":")
+    plt.axhline(-20, linestyle=":")
 
     plt.ylabel("cents")
     plt.xlabel("frame")
@@ -192,13 +195,16 @@ def plot_cents(cents, path):
     plt.close()
 
 
-def plot_db(db, path):
+def plot_db(db, start_w, end_w, path):
 
     plt.figure(figsize=(10,4))
 
     plt.title("Amplitude RMS (dB)")
 
     plt.plot(db)
+
+    plt.axvline(start_w, color="red")
+    plt.axvline(end_w, color="red")
 
     plt.ylabel("dB")
     plt.xlabel("window")
@@ -272,11 +278,11 @@ def main():
 
     stats = analyze(audio)
 
-    plot_pitch(stats["f0"], os.path.join(run_dir, "pitch.png"))
+    plot_pitch(stats["f0"], stats["start_f"], stats["end_f"], os.path.join(run_dir, "pitch.png"))
 
     plot_cents(stats["cents"], os.path.join(run_dir, "cents.png"))
 
-    plot_db(stats["db"], os.path.join(run_dir, "db.png"))
+    plot_db(stats["db"], stats["start_w"], stats["end_w"], os.path.join(run_dir, "db.png"))
 
     plot_spectrogram(audio, os.path.join(run_dir, "spectrogram.png"))
 

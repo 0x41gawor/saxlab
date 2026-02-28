@@ -1,14 +1,24 @@
 import numpy as np
 
-def trim_attack(f0):
 
-    f0_clean = f0[~np.isnan(f0)]
+def detect_active_region(db, threshold_db=20):
+    """
+    Finds the active sound region based on RMS dB.
 
-    median = np.median(f0_clean)
+    start = first window above (max_db - threshold)
+    end   = last window above (max_db - threshold)
+    """
 
-    for i in range(len(f0)):
+    max_db = np.max(db)
 
-        if abs(f0[i] - median) < 15:
-            return f0[i:]
+    threshold = max_db - threshold_db
 
-    return f0
+    indices = np.where(db > threshold)[0]
+
+    if len(indices) == 0:
+        return 0, len(db)
+
+    start = indices[0]
+    end = indices[-1]
+
+    return start, end
