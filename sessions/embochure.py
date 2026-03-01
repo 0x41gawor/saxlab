@@ -66,6 +66,8 @@ class EmbouchureSession:
     def _print_summary(self, summary):
         print("\n=== SUMMARY ===\n")
 
+        print(f"Runs: {self.repetitions}\n")
+
         print(
             "Mean frequency: "
             f"{summary['mean_freq']['mean']:.2f} Hz "

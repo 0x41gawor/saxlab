@@ -68,8 +68,7 @@ def main():
             interval=args.interval,
             repetitions=args.repeat
         )
-
-    session.run()
+        session.run()
 
 
 if __name__ == "__main__":
